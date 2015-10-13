@@ -262,6 +262,12 @@ def main(argv):
 
 def mongo_connect(host=None, port=None, ssl=False, user=None, passwd=None, replica=None):
     try:
+        # The read_preferences is a read-only attribute for the class of MogoClient
+        # when the pymongo version is larger than 3.0. So it should be setup before
+        # to connect a mongo database
+        if pymongo.version >= '3.0':
+            pymongo.read_preferences = pymongo.ReadPreference.SECONDARY
+
         # ssl connection for pymongo > 2.3
         if pymongo.version >= "2.3":
             if replica is None:
@@ -306,7 +312,7 @@ def exit_with_general_critical(e):
 
 
 def set_read_preference(db):
-    if pymongo.version >= "2.1":
+    if pymongo.version >= "2.1" and pymongo.version < '3.0':
         db.read_preference = pymongo.ReadPreference.SECONDARY
 
 
